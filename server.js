@@ -104,7 +104,7 @@ app.post('/students/register', async (req, res) => {
                             }
 
                             console.log(results.rows);
-                            req.flash("success_msg", "You are now registered!");
+                            req.flash("success_msg", "You are now registered, Welcome!");
                             res.redirect("/students/login")
                         }
                     )
