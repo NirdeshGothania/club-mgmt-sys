@@ -13,13 +13,14 @@ const nodemailer = require('nodemailer');
 const initializePassport = require("./passportConfig");
 initializePassport(passport);
 
-
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use(session({
-    secret: "secret", resave: false, saveUninitialized: false
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false
 }));
 
 app.use(passport.initialize());
@@ -32,16 +33,40 @@ app.get("/", (req, res) => {
 });
 
 app.get("/students/register", checkAuthenticated, (req, res) => {
-    res.render("register");
+    res.render("register")
 });
 
 app.get("/students/login", checkAuthenticated, (req, res) => {
     res.render("login");
 });
 
+app.get("/students/dashboard", (req, res) => {
 
-app.get("/students/dashboard", checkNotAuthenticated, (req, res) => {
-    res.render("dashboard", { user: req.user.name });
+    const userRole = req.user.role;
+
+    pool.query(
+        `SELECT * FROM users WHERE role = 2`,
+        (err, stud) => {
+            if (err) {
+                console.log(err);
+                req.flash("error_msg", "Failed to fetch students");
+                res.redirect("/students/dashboard");
+            } 
+            else {
+                if (userRole === 0) {
+                    res.render("admin-dashboard", { user: req.user.name, students: stud.rows });
+                } 
+                else if (userRole === 1) {
+                    res.render("coordinator-dashboard", { user: req.user.name });
+                } 
+                else {
+                    res.render("student-dashboard", { user: req.user.name });
+                }
+                console.log(stud.rows);
+            }
+        }
+    );
+   
 });
 
 app.get("/students/logout", (req, res) => {
@@ -51,6 +76,16 @@ app.get("/students/logout", (req, res) => {
     });
 });
 
+// function isAdmin(req, res, next) {
+//     // Check if the user is authenticated and has the role of an admin (role === 0)
+//     if (req.isAuthenticated() && req.user.role === 0) {
+//         return next(); // User is an admin, allow access to the next middleware or route handler
+//     }
+    
+    // If not an admin or not authenticated, redirect to a restricted page (e.g., login)
+    // res.redirect("/login");
+// }
+
 app.get("/students/forgotpassword", (req, res) => {
     res.render("forgotpassword");
 });
@@ -58,13 +93,16 @@ app.get("/students/forgotpassword", (req, res) => {
 app.post('/students/register', async (req, res) => {
     let { rollnumber, name, email, password, password2 } = req.body;
 
+    // Set the role to 0 (student) by default
+    const role = 2;
+
     console.log({
         rollnumber,
         name,
         email,
         password,
-        password2
-
+        password2,
+        role
     });
 
     let errors = [];
@@ -73,51 +111,54 @@ app.post('/students/register', async (req, res) => {
         errors.push({ message: "Enter all the details" });
     }
 
-    if (password != password2) {
-        errors.push({ message: "Password do not match" });
+    if (password !== password2) {
+        errors.push({ message: "Passwords do not match" });
     }
 
     if (errors.length > 0) {
         res.render("register", { errors });
     } else {
         let hashedPassword = await bcrypt.hash(password, 10);
-        console.log(hashedPassword);
 
         pool.query(
-            `SELECT * FROM students
+            `SELECT * FROM users
               WHERE rollnumber = $1`,
             [rollnumber],
             (err, results) => {
                 if (err) {
                     console.log(err);
                 }
-                console.log(results.rows);
 
                 if (results.rows.length > 0) {
                     errors.push({ message: "You are already registered" });
                     res.render('register', { errors });
                 } else {
+                    // Insert the new user with the default role 'student'
                     pool.query(
-                        `INSERT INTO students (rollnumber, name, email, password) VALUES ($1, $2, $3, $4) RETURNING rollnumber, password`, [rollnumber, name, email, hashedPassword], (err, results) => {
+                        `INSERT INTO users (rollnumber, name, email, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING rollnumber, password`,
+                        [rollnumber, name, email, hashedPassword, role],
+                        (err, results) => {
                             if (err) {
-                                throw err;
+                                console.log(err);
+                                req.flash("error_msg", "Registration failed");
+                                res.redirect("/students/register");
+                            } else {
+                                req.flash("success_msg", "You are now registered, Welcome!");
+                                res.redirect("/students/login");
                             }
-
-                            console.log(results.rows);
-                            req.flash("success_msg", "You are now registered, Welcome!");
-                            res.redirect("/students/login")
                         }
-                    )
+                    );
                 }
             }
-        )
-
+        );
     }
 });
 
 app.post(
     "/students/login", passport.authenticate("local", {
-        successRedirect: "/students/dashboard", failureRedirect: "/students/login", failureFlash: true
+        successRedirect: "/students/dashboard",
+        failureRedirect: "/students/login",
+        failureFlash: true
     })
 );
 
@@ -143,10 +184,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// app.post("/students/reset-password", (req, res, next) => {
-
-// });
-
 app.post("/students/forgotpassword", (req, res, next) => {
     // console.log("here");
     console.log(req.body);
@@ -154,7 +191,7 @@ app.post("/students/forgotpassword", (req, res, next) => {
     console.log(rollnumber);
 
     pool.query(
-        `SELECT * FROM students WHERE  rollnumber = $1`, [rollnumber],
+        `SELECT * FROM users WHERE  rollnumber = $1`, [rollnumber],
         (err, results) => {
             if (err) {
                 console.log(err);
@@ -171,7 +208,7 @@ app.post("/students/forgotpassword", (req, res, next) => {
             let token = bcrypt.hashSync(Math.random().toString(36).substring(7), 10).replaceAll('/', '0');
 
             pool.query(
-                `INSERT INTO password_reset_tokens (student_id, token) VALUES ($1, $2)`,
+                `INSERT INTO password_reset_tokens (user_id, token) VALUES ($1, $2)`,
                 [user.rollnumber, token],
                 (err) => {
                     if (err) {
@@ -199,15 +236,14 @@ app.post("/students/forgotpassword", (req, res, next) => {
                         res.redirect("/students/login");
                         return res.status(200).json({ message: 'Password reset link sent to your email' });
                     });
-                    
-
-                })
+                }
+            );
         });
 });
 
 app.get("/students/reset-password/:token", (req, res) => {
     const { token } = req.params;
-    
+
     pool.query(
         `SELECT * FROM password_reset_tokens WHERE token = $1`,
         [token],
@@ -226,7 +262,6 @@ app.get("/students/reset-password/:token", (req, res) => {
         }
     );
 });
-
 
 app.post("/students/reset-password/:token", (req, res) => {
     const { token } = req.params;
@@ -260,18 +295,18 @@ app.post("/students/reset-password/:token", (req, res) => {
                 }
 
                 pool.query(
-                    `UPDATE students SET password = $1 WHERE rollnumber = $2`,
-                    [hashedPassword, user.student_id],
+                    `UPDATE users SET password = $1 WHERE rollnumber = $2`,
+                    [hashedPassword, user.user_id],
                     (err) => {
                         if (err) {
                             console.log(err);
                             return res.status(500).json({ message: "Internal Server Error" });
                         }
-                        console.log('reset pw for ' + user.student_id);
+                        console.log('reset pw for ' + user.user_id);
 
                         pool.query(
-                            `DELETE FROM password_reset_tokens WHERE student_id = $1`,
-                            [user.student_id],
+                            `DELETE FROM password_reset_tokens WHERE user_id = $1`,
+                            [user.user_id],
                             (err) => {
                                 if (err) {
                                     console.log(err);
@@ -290,9 +325,26 @@ app.post("/students/reset-password/:token", (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-    console.log('Server is working on the port', PORT);
+app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
+    const { userId } = req.params;
+
+    pool.query(
+        `UPDATE users SET role = 1 WHERE user_id = $1`,
+        [userId],
+        (err) => {
+            if (err) {
+                console.log(err);
+                req.flash("error_msg", "Failed to promote user to coordinator");
+            } else {
+                req.flash("success_msg", "User promoted to coordinator successfully");
+            }
+            res.redirect("/students/dashboard");
+        }
+    );
 });
 
 
 
+app.listen(PORT, () => {
+    console.log('Server is working on the port', PORT);
+});

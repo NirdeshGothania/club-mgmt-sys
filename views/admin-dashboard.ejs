@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <ul>
+        <% if(typeof errors != 'undefined'){ %>
+            <% errors.forEach(error => { %>
+                <li><%= error.message %></li>
+            <% }) %> 
+        <% } %>
+    </ul>
+    <h1>Hello <%= user %></h1>
+    <h1>Welcome to the Admin Dashboard</h1>
+    <p>You have access to admin features.</p>
+    
+    <div>
+    <ul>
+        <% if (students != null) students.forEach(student => { %>
+            <li>
+                <%= student.name %>
+                <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
+                    <button type="submit">Promote to Coordinator</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+    </div>
+
+    <a href="/students/logout">Logout</a>
+</body>
+</html>
