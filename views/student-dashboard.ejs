@@ -9,10 +9,22 @@
 <body>
     <h1>Hello <%= user %></h1>
     <h1>Welcome to the Student Dashboard</h1>
-    <!-- Student-specific content goes here -->
-    <p>You have access to student features.</p>
-    <!-- Add more student-specific content here -->
 
+    <p>You have access to student features.</p>
+
+    <br>
+    <h2>Events:</h2>
+    <ul>
+        <% events.forEach(function(event) { %>
+            <li>
+                <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Start Date:</strong> <%= event.start_date %><br>
+                <strong>End Date:</strong> <%= event.end_date %><br>
+            </li>
+        <% }); %>
+    </ul>
+    <br>
+    
     <a href="/students/logout">Logout</a>
 </body>
 </html>

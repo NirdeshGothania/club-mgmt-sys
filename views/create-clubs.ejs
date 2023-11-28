@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+    <title>Create Clubs</title>
+</head>
+
+<body>
+    <h1>Create Club</h1>
+
+    <ul>
+        <% if(typeof errors !='undefined' ){ %>
+            <% errors.forEach(error=> { %>
+                <li>
+                    <%= error.message %>
+                </li>
+                <% }) %>
+                    <% } %>
+    </ul>
+    <ul>
+        <% if(messages.success_msg){ %>
+            <li>
+                <%= messages.success_msg %>
+            </li>
+
+            <% } %>
+    </ul>
+
+    <ul>
+        <% if(messages.error){ %>
+            <li>
+                <%= messages.error %>
+            </li>
+            <% } %>
+    </ul>
+
+    <form action="/students/create-clubs" method="POST">
+        <div>
+            <input type="text" id="clubname" name="clubname" placeholder="Club Name" required />
+        </div>
+
+        <div>
+            <input type="submit" value="Create Club" />
+        </div>
+
+    </form>
+
+</body>
+</html>

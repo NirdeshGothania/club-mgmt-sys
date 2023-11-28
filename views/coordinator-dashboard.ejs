@@ -9,10 +9,21 @@
 <body>
     <h1>Hello <%= user %></h1>
     <h1>Welcome to the Coordinator Dashboard</h1>
-    <!-- Coordinator-specific content goes here -->
-    <p>You have access to coordinator features.</p>
-    <!-- Add more coordinator-specific content here -->
 
+    <p>You have access to coordinator features.</p>
+    
+    <h2>Events:</h2>
+    <ul>
+        <% events.forEach(function(event) { %>
+            <li>
+                <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Start Date:</strong> <%= event.start_date %><br>
+                <strong>End Date:</strong> <%= event.end_date %><br>
+            </li>
+        <% }); %>
+    </ul>
+
+    <li><a href="/students/create-event">Create Event</a></li>
     <a href="/students/logout">Logout</a>
 </body>
 </html>
