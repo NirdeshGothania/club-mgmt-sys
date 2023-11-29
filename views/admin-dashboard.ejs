@@ -131,6 +131,25 @@
         </ul>
     </div>
 
+    <h2>Events:</h2>
+    <ul>
+        <% events.forEach(function(event) { %>
+            <li>
+                <form action="/students/dashboard/request-response/<%= event.event_id %>" method="POST">
+                <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Event Description:</strong> <%= event.event_desc %><br>
+                <strong>Start Date:</strong> <%= event.start_date %><br>
+                <strong>End Date:</strong> <%= event.end_date %><br>
+                <strong>Room:</strong> <%= event.room %><br>
+                <strong>Budget:</strong> <%= event.budget %><br>
+                <strong>Status :</strong> <%= event.status %><br>
+                <button type="submit" name = "action" value = "approve">Approved</button>
+                <button type="submit" name = "action" value = "reject">Reject</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+
     <a href="/students/create-clubs">Create Club</a>
     <br>
     <a href="/students/logout">Logout</a>

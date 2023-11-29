@@ -37,7 +37,7 @@
             <% } %>
     </ul>
 
-    <form action="/students/create-event" method="POST">
+    <!-- <form action="/students/create-event" method="POST">
 
         <div>
             <input type="text" id="clubId" name="clubId" placeholder="Club id" required>
@@ -53,6 +53,38 @@
 
         <div>
             <input type="datetime-local" id="endDate" name="endDate" placeholder="End Date" required>
+        </div>
+
+        <div>
+            <input type="submit" value="Create Events" />
+        </div>
+
+    </form> -->
+
+    <form action="/students/create-event" method="POST">
+
+        <div>
+            <input type="text" id="eventName" name="eventName" placeholder="Event Name" required>
+        </div>
+
+        <div>
+            <input type="text" id="eventDescription" name="eventDescription" placeholder="Event Description" required>
+        </div>
+
+        <div>
+            <input type="datetime-local" id="startDate" name="startDate" placeholder="Start Date" required>
+        </div>
+
+        <div>
+            <input type="datetime-local" id="endDate" name="endDate" placeholder="End Date" required>
+        </div>
+
+        <div>
+            <input type="text" id="eventRoom" name="eventRoom" placeholder="Event Room" required>
+        </div>
+
+        <div>
+            <input type="numeric" id="budget" name="budget" placeholder="Event Budget" required>
         </div>
 
         <div>

@@ -17,8 +17,13 @@
         <% events.forEach(function(event) { %>
             <li>
                 <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Event Description:</strong> <%= event.event_desc %><br>
                 <strong>Start Date:</strong> <%= event.start_date %><br>
                 <strong>End Date:</strong> <%= event.end_date %><br>
+                <strong>Room:</strong> <%= event.room %><br>
+                <strong>Budget:</strong> <%= event.budget %><br>
+                <strong>Status :</strong> <%= event.status %><br>
+
             </li>
         <% }); %>
     </ul>
