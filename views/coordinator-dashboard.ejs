@@ -22,7 +22,7 @@
                 <strong>End Date:</strong> <%= event.end_date %><br>
                 <strong>Room:</strong> <%= event.room %><br>
                 <strong>Budget:</strong> <%= event.budget %><br>
-                <strong>Status :</strong> <%= event.status %><br>
+                <strong>Status :</strong> <%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %><br>
 
             </li>
         <% }); %>

@@ -1,68 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
     <title>Admin Dashboard</title>
 </head>
-<body>
-    <ul>
-        <% if(typeof errors != 'undefined'){ %>
-            <% errors.forEach(error => { %>
-                <li><%= error.message %></li>
-            <% }) %> 
-        <% } %>
-    </ul>
 
-    <h1>Hello <%= user %></h1>
+<body>
+    <h1>Hello <%= user %>
+    </h1>
     <h1>Welcome to the Admin Dashboard</h1>
     <p>You have access to admin features.</p>
-    
-    <div>
-    <ul>
-        <!-- <% if (students != null) students.forEach(student => { %>
-            <li>
-                <%= student.name %>
-                <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
-                    <label for="clubId">Select Club:</label>
-                    <select name="clubId" id="clubId">
-                        <% clubs.forEach(club => { %>
-                            <option value="<%= club.club_id %>"><%= club.name %></option>
-                        <% }); %>
-                    </select>
-                    <button type="submit">Promote to Coordinator</button>
-                </form> -->
 
-                <% if (students != null) students.forEach(student => { %>
-                    <li>
-                        <%= student.name %>
+    <ul>
+        <% if(typeof errors !='undefined' ){ %>
+            <% errors.forEach(error=> { %>
+                <li>
+                    <%= error.message %>
+                </li>
+                <% }) %>
+                    <% } %>
+    </ul>
+
+
+    <div>
+        <ul>
+
+            <!-- <% students.forEach(student=> { %>
+                <li>
+                    <%= student.name %>
                         <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
                             <label for="clubId">Select Club:</label>
                             <select name="clubId" id="clubId">
-                                <option value="">Select a Club</option> <!-- Add a default option -->
-                                <% clubs.forEach(club => { %>
-                                    <option value="<%= club.club_id %>"><%= club.club_name %></option>
-                                <% }); %>
+                                <option value="">Select a Club</option>
+                                <% clubs.forEach(club=> { %>
+                                    <option value="<%= club.club_id %>">
+                                        <%= club.club_name %>
+                                    </option>
+                                    <% }); %>
                             </select>
                             <button type="submit">Promote to Coordinator</button>
                         </form>
-                    </li>
-                <% }); %>
+                </li>
 
-                <!-- <form method="POST" action="/students/promote-coordinator/<%= user.user_id %>">
-                    <label for="clubId">Select Club:</label>
-                    <select name="clubId" id="clubId">
-                        <% clubs.forEach(club => { %>
-                            <option value="<%= club.club_id %>"><%= club.name %></option>
-                        <% }); %>
-                    </select>
-                    <button type="submit">Promote to Coordinator</button>
-                </form> -->
-
-            </li>
-        <% }); %>
-    </ul>
+            <% }); %> -->
+            <% students.forEach(student => { %>
+                <li>
+                    <%= student.name %>
+                    <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
+                        <label for="clubId">Select Club:</label>
+                        <select name="clubId" id="clubId">
+                            <option value="" disabled selected>Select a Club</option>
+                            <% club_list.forEach(club => { %>
+                                <option value="<%= club.club_id %>">
+                                    <%= club.club_name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                        <button type="submit">Promote to Coordinator</button>
+                    </form>
+                </li>
+            <% }); %>
+            
+        </ul>
     </div>
 
     <!-- <div>
@@ -118,11 +120,11 @@
     <div>
         <h2>Club List</h2>
         <ul>
-            <% clubs.forEach(club => { %>
+            <% clubs.forEach(club=> { %>
                 <li>
                     Club Name: <%= club.club_name %>
-                    <% if (club.coordinators.length > 0) { %>
-                        Coordinator(s): <%= club.coordinators.join(', ') %>
+                        <% if (club.coordinators.length> 0) { %>
+                            Coordinator(s): <%= club.coordinators.join(', ') %>
                     <% } else { %>
                         Coordinator: No Coordinator Assigned
                     <% } %>
@@ -131,7 +133,7 @@
         </ul>
     </div>
 
-    <h2>Events:</h2>
+    <h2>Events Request:</h2>
     <ul>
         <% events.forEach(function(event) { %>
             <li>
@@ -142,10 +144,26 @@
                 <strong>End Date:</strong> <%= event.end_date %><br>
                 <strong>Room:</strong> <%= event.room %><br>
                 <strong>Budget:</strong> <%= event.budget %><br>
-                <strong>Status :</strong> <%= event.status %><br>
-                <button type="submit" name = "action" value = "approve">Approved</button>
+                <strong>Status :</strong> <%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %><br>
+                <button type="submit" name = "action" value = "approve">Approve</button>
                 <button type="submit" name = "action" value = "reject">Reject</button>
                 </form>
+            </li>
+        <% }); %>
+    </ul>
+
+    <h2>Events List:</h2>
+    <ul>
+        <% event_list.forEach(function(event) { %>
+            <li>
+                <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Event Description:</strong> <%= event.event_desc %><br>
+                <strong>Start Date:</strong> <%= event.start_date %><br>
+                <strong>End Date:</strong> <%= event.end_date %><br>
+                <strong>Room:</strong> <%= event.room %><br>
+                <strong>Budget:</strong> <%= event.budget %><br>
+                <strong>Status :</strong> <%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %><br>
+
             </li>
         <% }); %>
     </ul>
