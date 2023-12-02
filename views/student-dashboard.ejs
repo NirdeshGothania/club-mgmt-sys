@@ -15,7 +15,7 @@
     <br>
     <h2>Events:</h2>
     <ul>
-        <% events.forEach(function(event) { %>
+        <% events_sel.forEach(function(event) { %>
             <li>
                 <strong>Event Name:</strong> <%= event.event_name %><br>
                 <strong>Start Date:</strong> <%= event.start_date %><br>
@@ -25,6 +25,22 @@
     </ul>
     <br>
     
+    <br>
+    <h2>Event Register:</h2>
+    <ul>
+        <% event_reg.forEach(function(event) { %>
+            <li>
+                <form action="/students/dashboard/event-register/<%= event.event_id %>/ <%= userId %>" method="POST">
+                <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Start Date:</strong> <%= event.start_date %><br>
+                <strong>End Date:</strong> <%= event.end_date %><br>
+                <button type="submit">Register</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+    <br>
+
     <a href="/students/logout">Logout</a>
 </body>
 </html>

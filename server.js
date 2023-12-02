@@ -273,11 +273,12 @@ app.get("/students/dashboard", (req, res) => {
                     //         }
                     //     }
                     // );
-                    pool.query(`SELECT * FROM create_events WHERE status = true`, (err, event_list) => {
-                        if(err){
+
+                    pool.query(`SELECT * FROM create_events LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id LEFT JOIN users ON registered_students.user_id = users.user_id WHERE status = true`, (err, event_list) => {
+                        if (err) {
                             console.log(err);
                         }
-                        else{
+                        else {
                             pool.query(
                                 `SELECT *
                              FROM create_events
@@ -298,11 +299,11 @@ app.get("/students/dashboard", (req, res) => {
                                                     console.log(err);
                                                     req.flash("error_msg", "Failed to fetch club data");
                                                 }
-        
+
                                                 // Group the clubs and their coordinators
 
                                                 const clubsData = groupClubsAndCoordinators(results.rows);
-        
+
                                                 // Fetch clubs without coordinators
                                                 pool.query(
                                                     `SELECT club_table.club_id, club_table.name AS club_name
@@ -317,13 +318,13 @@ app.get("/students/dashboard", (req, res) => {
                                                         }
                                                         const uniqueClubs = results.rows.reduce((acc, current) => {
                                                             const existingClub = acc.find((club) => club.club_id === current.club_id);
-                                                          
+
                                                             if (!existingClub) {
-                                                              acc.push(current);
+                                                                acc.push(current);
                                                             }
-                                                          
+
                                                             return acc;
-                                                          }, []);
+                                                        }, []);
                                                         res.render("admin-dashboard", {
                                                             user: req.user.name,
                                                             students: stud.rows,
@@ -407,7 +408,51 @@ app.get("/students/dashboard", (req, res) => {
                                 req.flash("error_msg", "Failed to fetch events");
                                 res.redirect("/students/dashboard");
                             } else {
-                                res.render("coordinator-dashboard", { user: req.user.name, events: events.rows });
+                                const eventsData = [];
+                                const promises = events.rows.map((event) => {
+                                    return new Promise((resolve, reject) => {
+                                        pool.query(
+                                            `SELECT users.name AS student_name, users.rollnumber
+                                            FROM registered_students
+                                            JOIN users ON registered_students.user_id = users.user_id
+                                            WHERE registered_students.event_id = $1`,
+                                            [event.event_id],
+                                            (err, students) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                    reject(err);
+                                                } else {
+                                                    console.log("student name issue: ", students.rows);
+                                                    eventsData.push({
+                                                        event_id: event.event_id,
+                                                        event_name: event.event_name,
+                                                        event_desc: event.event_desc,
+                                                        start_date: event.start_date,
+                                                        end_date: event.end_date,
+                                                        room: event.room,
+                                                        budget: event.budget,
+                                                        status: event.status,
+                                                        students: students.rows,
+                                                    });
+                                                    resolve();
+                                                }
+                                            }
+                                        );
+                                    });
+                                });
+                                // res.render("coordinator-dashboard", { user: req.user.name, events: events.rows });
+                                Promise.all(promises)
+                                    .then(() => {
+
+                                        res.render("coordinator-dashboard", {
+                                            user: req.user.name,
+                                            events: eventsData
+                                        });
+                                    })
+                                    .catch((error) => {
+                                        console.log(error);
+                                        res.redirect("/students/dashboard");
+                                    });
                             }
                         }
                     );
@@ -417,20 +462,44 @@ app.get("/students/dashboard", (req, res) => {
                 } else {
 
                     pool.query(
-                        `SELECT event_id, event_name, start_date, end_date
-                         FROM create_events WHERE status = true`,
+                        `SELECT * FROM create_events WHERE status = true`,
                         (err, events) => {
                             if (err) {
                                 console.log(err);
                                 req.flash("error_msg", "Failed to fetch events");
                                 res.redirect("/students/dashboard");
                             } else {
-                                console.log("Fetched events:", events.rows);
-                                res.render("student-dashboard", { user: req.user.name, events: events.rows });
+                                // Assuming events.rows is an array of events
+                                const eventIds = events.rows.map(event => event.event_id);
+                                console.log(eventIds);
 
+                                pool.query(
+                                    `SELECT * FROM create_events 
+                                    LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id 
+                                    WHERE create_events.event_id = ANY($1) AND registered_students.user_id IS NULL`,
+                                    [eventIds.map(id => BigInt(id))],
+                                    (err, event_reg) => {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            pool.query(`SELECT * FROM create_events 
+                                            LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id WHERE registered_students.user_id = $1`, [userId], (err, events_sel) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                }
+                                                res.render("student-dashboard", { user: req.user.name, userId: req.user.user_id, events: events.rows, event_reg: event_reg.rows, events_sel: events_sel.rows });
+
+                                            });
+
+
+                                        }
+                                    }
+                                );
+                                console.log("Fetched events:", events.rows);
                             }
                         }
                     );
+
 
                     // res.render("student-dashboard", { user: req.user.name });
                 }
@@ -795,6 +864,7 @@ app.post("/students/reset-password/:token", (req, res) => {
 // });
 
 
+
 app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
     // console.log(req.body.clubId);
     const userId = req.params.userId;
@@ -820,7 +890,7 @@ app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
                             console.log(err);
                             req.flash("error_msg", "Failed to check coordinator assignment");
                             res.redirect("/students/dashboard");
-                        } else if(results.rows.length === 0) {
+                        } else if (results.rows.length === 0) {
                             pool.query(
                                 `INSERT INTO club_coordinator (club_id, user_id) VALUES ($1, $2)`,
                                 [clubId, userId],
@@ -834,7 +904,7 @@ app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
                                     res.redirect("/students/dashboard");
                                 }
                             );
-                        } 
+                        }
                     }
                 );
             }
@@ -911,6 +981,21 @@ app.post("/students/create-event", (req, res) => {
 //         return res.redirect("/students/dashboard");
 //     }
 // }
+
+app.post("/students/dashboard/event-register/:eventId/:userId", (req, res) => {
+
+    const eventId = req.params.eventId;
+    const userId = req.params.userId;
+    console.log(userId);
+    pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+        if (err) {
+
+            console.log(err);
+        }
+        console.log("event registered");
+        res.redirect("/students/dashboard");
+    });
+});
 
 app.post("/students/dashboard/request-response/:eventID", (req, res) => {
     const eventId = req.params.eventID;

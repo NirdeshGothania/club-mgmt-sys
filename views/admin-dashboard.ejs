@@ -164,6 +164,15 @@
                 <strong>Budget:</strong> <%= event.budget %><br>
                 <strong>Status :</strong> <%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %><br>
 
+                <strong>Registered Students:</strong>
+                <ul>
+                    <% event_list.forEach(function(event) { %>
+                        <li>
+                            <%= event_list.name %> - <%= event_list.rollnumber %>
+                        </li>
+                    <% }); %>
+                </ul>
+
             </li>
         <% }); %>
     </ul>
