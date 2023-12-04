@@ -133,12 +133,13 @@
         </ul>
     </div>
 
-    <h2>Events Request:</h2>
+    <h2>Events Request</h2>
     <ul>
         <% events.forEach(function(event) { %>
             <li>
                 <form action="/students/dashboard/request-response/<%= event.event_id %>" method="POST">
                 <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Club Name:</strong> <%= event.club_name %><br>
                 <strong>Event Description:</strong> <%= event.event_desc %><br>
                 <strong>Start Date:</strong> <%= event.start_date %><br>
                 <strong>End Date:</strong> <%= event.end_date %><br>
@@ -152,11 +153,12 @@
         <% }); %>
     </ul>
 
-    <h2>Events List:</h2>
+    <h2>Events List</h2>
     <ul>
         <% event_list.forEach(function(event) { %>
             <li>
                 <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Club Name:</strong> <%= event.club_name %><br>
                 <strong>Event Description:</strong> <%= event.event_desc %><br>
                 <strong>Start Date:</strong> <%= event.start_date %><br>
                 <strong>End Date:</strong> <%= event.end_date %><br>
@@ -168,7 +170,7 @@
                 <ul>
                     <% event_list.forEach(function(event) { %>
                         <li>
-                            <%= event_list.name %> - <%= event_list.rollnumber %>
+                            <%= event.name %> - <%= event.rollnumber %>
                         </li>
                     <% }); %>
                 </ul>

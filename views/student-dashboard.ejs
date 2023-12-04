@@ -13,31 +13,60 @@
     <p>You have access to student features.</p>
 
     <br>
-    <h2>Events:</h2>
-    <ul>
-        <% events_sel.forEach(function(event) { %>
-            <li>
-                <strong>Event Name:</strong> <%= event.event_name %><br>
-                <strong>Start Date:</strong> <%= event.start_date %><br>
-                <strong>End Date:</strong> <%= event.end_date %><br>
-            </li>
-        <% }); %>
+    <h2>Registered Events</h2>
+    <form action="/students/dashboard/event-unregister/<%= userId %>" method="POST">
+        <ul>
+            <% events_sel.forEach(function(event) { %>
+                <li>
+                    <input type="checkbox" name="eventIds" value="<%= event.event_id %>">
+                    <strong>Event Name:</strong> <%= event.event_name %><br>
+                    <strong>Club Name:</strong> <%= event.name %><br>
+                    <strong>Event Description:</strong> <%= event.event_desc %><br>
+                    <strong>Start Date:</strong> <%= event.start_date %><br>
+                    <strong>End Date:</strong> <%= event.end_date %><br>
+                </li>
+            <% }); %>
+            <button type="submit">Unregister Selected Events</button>
+        </form>
     </ul>
     <br>
     
-    <br>
-    <h2>Event Register:</h2>
+    <!-- <br>
+    <h2>Upcoming Events:</h2>
     <ul>
         <% event_reg.forEach(function(event) { %>
             <li>
                 <form action="/students/dashboard/event-register/<%= event.event_id %>/ <%= userId %>" method="POST">
                 <strong>Event Name:</strong> <%= event.event_name %><br>
+                <strong>Club Name:</strong> <%= event.name %><br>    
+                <strong>Event Description:</strong> <%= event.event_desc %><br>
                 <strong>Start Date:</strong> <%= event.start_date %><br>
                 <strong>End Date:</strong> <%= event.end_date %><br>
                 <button type="submit">Register</button>
                 </form>
             </li>
         <% }); %>
+    </ul>
+    <br> -->
+
+    <br>
+    <h2>Upcoming Events:</h2>
+    <form action="/students/dashboard/event-register/<%= userId %>" method="POST">
+        <ul>
+            <% event_reg.forEach(function(event) { %>
+                <li>
+                    <!-- <label> -->
+                        <input type="checkbox" name="eventIds" value="<%= event.event_id %>">
+                        <strong>Event Name:</strong> <%= event.event_name %><br>
+                        <strong>Club Name:</strong> <%= event.name %><br>    
+                        <strong>Event Description:</strong> <%= event.event_desc %><br>
+                        <strong>Start Date:</strong> <%= event.start_date %><br>
+                        <strong>End Date:</strong> <%= event.end_date %><br>
+                    <!-- </label> -->
+                </li>
+            <% }); %>
+            <button type="submit">Register Selected Events</button>
+        </form>
     </ul>
     <br>
 

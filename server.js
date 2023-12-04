@@ -105,7 +105,7 @@ function groupClubsAndCoordinators(data) {
         }
     });
 
-    return Object.values(clubData);
+    return Object.values(clubData);  
 }
 
 app.get("/students/dashboard", (req, res) => {
@@ -274,14 +274,18 @@ app.get("/students/dashboard", (req, res) => {
                     //     }
                     // );
 
-                    pool.query(`SELECT * FROM create_events LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id LEFT JOIN users ON registered_students.user_id = users.user_id WHERE status = true`, (err, event_list) => {
+                    pool.query(`SELECT club_table.name AS club_name,
+                    create_events.*,
+                    registered_students.*,
+                    users.* FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id LEFT JOIN users ON registered_students.user_id = users.user_id WHERE status = true`, (err, event_list) => {
                         if (err) {
                             console.log(err);
                         }
                         else {
                             pool.query(
-                                `SELECT *
-                             FROM create_events
+                                `SELECT club_table.name AS club_name,
+                                create_events.*
+                             FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id
                              WHERE status IS NULL`,
                                 (err, events) => {
                                     if (err) {
@@ -462,7 +466,7 @@ app.get("/students/dashboard", (req, res) => {
                 } else {
 
                     pool.query(
-                        `SELECT * FROM create_events WHERE status = true`,
+                        `SELECT * FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id WHERE status = true`,
                         (err, events) => {
                             if (err) {
                                 console.log(err);
@@ -474,7 +478,7 @@ app.get("/students/dashboard", (req, res) => {
                                 console.log(eventIds);
 
                                 pool.query(
-                                    `SELECT * FROM create_events 
+                                    `SELECT * FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id 
                                     LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id 
                                     WHERE create_events.event_id = ANY($1) AND registered_students.user_id IS NULL`,
                                     [eventIds.map(id => BigInt(id))],
@@ -482,7 +486,7 @@ app.get("/students/dashboard", (req, res) => {
                                         if (err) {
                                             console.log(err);
                                         } else {
-                                            pool.query(`SELECT * FROM create_events 
+                                            pool.query(`SELECT * FROM club_table LEFT JOIN create_events ON club_table.club_id = create_events.club_id 
                                             LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id WHERE registered_students.user_id = $1`, [userId], (err, events_sel) => {
                                                 if (err) {
                                                     console.log(err);
@@ -982,20 +986,170 @@ app.post("/students/create-event", (req, res) => {
 //     }
 // }
 
-app.post("/students/dashboard/event-register/:eventId/:userId", (req, res) => {
+// app.post("/students/dashboard/event-register/:eventId/:userId", (req, res) => {
 
-    const eventId = req.params.eventId;
+//     const eventId = req.params.eventId;
+//     const userId = req.params.userId;
+//     console.log(userId);
+//     pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+//         if (err) {
+
+//             console.log(err);
+//         }
+//         console.log("event registered");
+//         res.redirect("/students/dashboard");
+//     });
+// });
+
+
+
+// app.post("/students/dashboard/event-register/:userId", (req, res) => {
+//     const userId = req.params.userId;
+//     const selectedEventIds = req.body.eventIds;
+
+//     if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
+//         req.flash("error_msg", "No events selected for registration");
+//         return res.redirect("/students/dashboard");
+//     }
+
+//     const promises = selectedEventIds.map((eventId) => {
+//         return new Promise((resolve, reject) => {
+//             pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+//                 if (err) {
+//                     console.log(err);
+//                     reject(err);
+//                 } else {
+//                     console.log(`Event with ID ${eventId} registered for user ${userId}`);
+//                     resolve();
+//                 }
+//             });
+//         });
+//     });
+
+//     Promise.all(promises)
+//         .then(() => {
+//             req.flash("success_msg", "Events registered successfully");
+//             res.redirect("/students/dashboard");
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             req.flash("error_msg", "Failed to register events");
+//             res.redirect("/students/dashboard");
+//         });
+// });
+
+
+
+// app.post("/students/dashboard/event-register/:userId", (req, res) => {
+//     const userId = req.params.userId;
+//     const selectedEventIds = req.body.eventIds;
+//     console.log(selectedEventIds);
+
+//     if (!selectedEventIds) {
+//         req.flash("error_msg", "No events selected for registration");
+//         console.log("Error empty checkbox")
+//         return res.redirect("/students/dashboard");
+//     }
+
+//     const promises = selectedEventIds.map((eventId) => {
+//         return new Promise((resolve, reject) => {
+//             pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+//                 if (err) {
+//                     console.log(err);
+//                     console.log("Error in inserting")
+//                     reject(err);
+//                 } else {
+//                     console.log(`Event with ID ${eventId} registered for user ${userId}`);
+//                     resolve();
+//                 }
+//             });
+//         });
+//     });
+
+//     Promise.all(promises)
+//         .then(() => {
+//             req.flash("success_msg", "Events registered successfully");
+//             res.redirect("/students/dashboard");
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             req.flash("error_msg", "Failed to register events");
+//             res.redirect("/students/dashboard");
+//         });
+// });
+
+
+app.post("/students/dashboard/event-register/:userId", (req, res) => {
     const userId = req.params.userId;
-    console.log(userId);
-    pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
-        if (err) {
-
-            console.log(err);
-        }
-        console.log("event registered");
-        res.redirect("/students/dashboard");
+    const selectedEventIds = req.body.eventIds; // Assuming eventIds is an array
+ 
+    if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
+       console.error('Invalid or missing eventIds:', selectedEventIds);
+       return res.redirect("/students/dashboard");
+    }
+ 
+    // Insert into the registered_students table for each selected event
+    const promises = selectedEventIds.map((eventId) => {
+       return new Promise((resolve, reject) => {
+          pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+             if (err) {
+                console.log(err);
+                reject(err);
+             } else {
+                console.log("Event registered:", eventId);
+                resolve();
+             }
+          });
+       });
     });
-});
+ 
+    // Wait for all promises to resolve before redirecting
+    Promise.all(promises)
+       .then(() => {
+          res.redirect("/students/dashboard");
+       })
+       .catch((error) => {
+          console.error('Error registering events:', error);
+          res.redirect("/students/dashboard");
+       });
+ });
+
+
+ app.post("/students/dashboard/event-unregister/:userId", (req, res) => {
+    const userId = req.params.userId;
+    const selectedEventIds = req.body.eventIds; 
+ 
+    if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
+       console.error('Invalid or missing eventIds:', selectedEventIds);
+       return res.redirect("/students/dashboard");
+    }
+ 
+    
+    const promises = selectedEventIds.map((eventId) => {
+       return new Promise((resolve, reject) => {
+          pool.query(`DELETE FROM registered_students WHERE event_id = $1 AND user_id = $2`, [eventId, userId], (err) => {
+             if (err) {
+                console.log(err);
+                reject(err);
+             } else {
+                console.log("Event unregistered:", eventId);
+                resolve();
+             }
+          });
+       });
+    });
+ 
+    
+    Promise.all(promises)
+       .then(() => {
+          res.redirect("/students/dashboard");
+       })
+       .catch((error) => {
+          console.error('Error unregistering events:', error);
+          res.redirect("/students/dashboard");
+       });
+ });
+
 
 app.post("/students/dashboard/request-response/:eventID", (req, res) => {
     const eventId = req.params.eventID;
