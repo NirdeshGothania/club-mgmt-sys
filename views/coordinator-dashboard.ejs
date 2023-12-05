@@ -12,7 +12,7 @@
 
     <p>You have access to coordinator features.</p>
     
-    <h2>Events List</h2>
+    <!-- <h2>Events List</h2>
     <ul>
         <% events.forEach(function(event) { %>
             <li>
@@ -35,12 +35,6 @@
             <li>
                 <strong>Event Name:</strong> <%= event.event_name %><br>
                 <strong>Event Description:</strong> <%= event.event_desc %><br>
-                <!-- <strong>Start Date:</strong> <%= event.start_date %><br>
-                <strong>End Date:</strong> <%= event.end_date %><br>
-                <strong>Room:</strong> <%= event.room %><br>
-                <strong>Budget:</strong> <%= event.budget %><br>
-                <strong>Status :</strong> <%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %><br> -->
-
                 <strong>Registered Students:</strong>
                 <ul>
                     <% event.students.forEach(function(student) { %>
@@ -56,6 +50,60 @@
     
 
     <li><a href="/students/create-event">Create Event</a></li>
+    <a href="/students/logout">Logout</a> -->
+
+    <h2>Events List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Event Name</th>
+                <th>Event Description</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Room</th>
+                <th>Budget</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% events.forEach(function(event) { %>
+                <tr>
+                    <td><%= event.event_name %></td>
+                    <td><%= event.event_desc %></td>
+                    <td><%= event.start_date %></td>
+                    <td><%= event.end_date %></td>
+                    <td><%= event.room %></td>
+                    <td><%= event.budget %></td>
+                    <td><%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <h2>Registered Students List:</h2>
+    <% events.forEach(function(event) { %>
+        <h3><%= event.event_name %></h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% event.students.forEach(function(student) { %>
+                    <tr>
+                        <td><%= student.student_name %></td>
+                        <td><%= student.rollnumber %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% }); %>
+
+    <ul>
+        <li><a href="/students/create-event">Create Event</a></li>
+    </ul>
     <a href="/students/logout">Logout</a>
 </body>
 </html>

@@ -9,6 +9,7 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+const moment = require('moment-timezone');
 
 const initializePassport = require("./passportConfig");
 initializePassport(passport);
@@ -112,6 +113,9 @@ app.get("/students/dashboard", (req, res) => {
 
     const userRole = req.user.role;
     const userId = req.user.user_id;
+
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
     pool.query(
         `SELECT * FROM users WHERE role = 2`,
@@ -274,14 +278,33 @@ app.get("/students/dashboard", (req, res) => {
                     //     }
                     // );
 
-                    pool.query(`SELECT club_table.name AS club_name,
-                    create_events.*,
-                    registered_students.*,
-                    users.* FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id LEFT JOIN users ON registered_students.user_id = users.user_id WHERE status = true`, (err, event_list) => {
+                        let query = `SELECT club_table.name AS club_name,
+                            create_events.*,
+                            registered_students.*,
+                            users.* 
+                            FROM club_table 
+                            JOIN create_events ON club_table.club_id = create_events.club_id 
+                            LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id 
+                            LEFT JOIN users ON registered_students.user_id = users.user_id 
+                            WHERE status = true`;
+                        if (startDate && endDate) {
+                            query += ` AND create_events.start_date >= '${startDate}' AND create_events.start_date <= '${endDate}'`;
+                        }
+
+                    pool.query(query, (err, event_list) => {
                         if (err) {
                             console.log(err);
                         }
                         else {
+                            
+                            // event_list.rows.forEach(event => {
+                            //     event.students = event.students.append(event.name && event.rollnumber) || []; 
+                            // });
+
+                            event_list.rows.forEach(event => {
+                                event.students = (event.students || []).concat(event.name && event.rollnumber || []);
+                            });
+
                             pool.query(
                                 `SELECT club_table.name AS club_name,
                                 create_events.*
@@ -337,6 +360,8 @@ app.get("/students/dashboard", (req, res) => {
                                                             clubsWithoutCoordinators: clubsWithoutCoordinators.rows,
                                                             events: events.rows,
                                                             event_list: event_list.rows,
+                                                            startDate: startDate,
+                                                            endDate: endDate,
                                                         });
                                                     }
                                                 );
@@ -476,12 +501,14 @@ app.get("/students/dashboard", (req, res) => {
                                 // Assuming events.rows is an array of events
                                 const eventIds = events.rows.map(event => event.event_id);
                                 console.log(eventIds);
+                                
+                                const currentDateTime = moment().tz('UTC').format();
 
                                 pool.query(
                                     `SELECT * FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id 
                                     LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id 
-                                    WHERE create_events.event_id = ANY($1) AND registered_students.user_id IS NULL`,
-                                    [eventIds.map(id => BigInt(id))],
+                                    WHERE create_events.event_id = ANY($1) AND registered_students.user_id IS NULL AND create_events.start_date >= $2`,
+                                    [eventIds.map(id => BigInt(id)), currentDateTime],
                                     (err, event_reg) => {
                                         if (err) {
                                             console.log(err);
@@ -948,7 +975,6 @@ app.post("/students/create-event", (req, res) => {
 
     if (req.isAuthenticated()) {
         const userId = req.user.user_id;
-
 
         pool.query(`SELECT * FROM club_coordinator WHERE user_id = $1 `, [userId], (err, results) => {
             if (err) {

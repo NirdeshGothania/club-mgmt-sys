@@ -27,15 +27,14 @@
 
     <div>
         <ul>
-
-            <!-- <% students.forEach(student=> { %>
+            <% students.forEach(student=> { %>
                 <li>
                     <%= student.name %>
                         <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
                             <label for="clubId">Select Club:</label>
                             <select name="clubId" id="clubId">
-                                <option value="">Select a Club</option>
-                                <% clubs.forEach(club=> { %>
+                                <option value="" disabled selected>Select a Club</option>
+                                <% club_list.forEach(club=> { %>
                                     <option value="<%= club.club_id %>">
                                         <%= club.club_name %>
                                     </option>
@@ -44,81 +43,13 @@
                             <button type="submit">Promote to Coordinator</button>
                         </form>
                 </li>
+                <% }); %>
 
-            <% }); %> -->
-            <% students.forEach(student => { %>
-                <li>
-                    <%= student.name %>
-                    <form action="/students/dashboard/promote-coordinator/<%= student.user_id %>" method="POST">
-                        <label for="clubId">Select Club:</label>
-                        <select name="clubId" id="clubId">
-                            <option value="" disabled selected>Select a Club</option>
-                            <% club_list.forEach(club => { %>
-                                <option value="<%= club.club_id %>">
-                                    <%= club.club_name %>
-                                </option>
-                            <% }); %>
-                        </select>
-                        <button type="submit">Promote to Coordinator</button>
-                    </form>
-                </li>
-            <% }); %>
-            
         </ul>
     </div>
 
-    <!-- <div>
-        <h2>Club List</h2>
-        <ul>
-            <% clubs.forEach(club => { %>
-                <li>
-                    Club Name: <%= club.name %>
-                    <% if (club.user_id) { %>
-                        Coordinator: Yes
-                    <% } else { %>
-                        Coordinator: No
-                    <% } %>
-                </li>
-            <% }); %>
-        </ul>
-    </div> -->
-
-
-    <!-- <div>
-        <h2>Club List</h2>
-        <ul>
-            <% clubs.forEach(club => { %>
-                <li>
-                    Club Name: <%= club.name %>
-                    <% if (club.user_id) { %>
-                        Coordinator: Yes, Coordinator Name: <%= club.coordinator_name %>
-                    <% } else { %>
-                        Coordinator: No
-                    <% } %>
-                </li>
-            <% }); %>
-        </ul>
-    </div> -->
-
-
-    <!-- <div>
-        <h2>Club List</h2>
-        <ul>
-            <% clubs.forEach(club => { %>
-                <li>
-                    Club Name: <%= club.club_name %>
-                    <% if (club.coordinator_name) { %>
-                        Coordinator: <%= club.coordinator_name %>
-                    <% } else { %>
-                        Coordinator: No Coordinator Assigned
-                    <% } %>
-                </li>
-            <% }); %>
-        </ul>
-    </div> -->
-
     <div>
-        <h2>Club List</h2>
+        <!-- <h2>Club List</h2>
         <ul>
             <% clubs.forEach(club=> { %>
                 <li>
@@ -130,7 +61,32 @@
                     <% } %>
                 </li>
             <% }); %>
-        </ul>
+        </ul> -->
+
+        <h2>Club List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Club Name</th>
+                    <th>Coordinator(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% clubs.forEach(club=> { %>
+                    <tr>
+                        <td><%= club.club_name %>
+                        </td>
+                        <td>
+                            <% if (club.coordinators.length> 0) { %>
+                                <%= club.coordinators.join(', ') %>
+                            <% } else { %>
+                                Coordinator: No Coordinator Assigned
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
     </div>
 
     <h2>Events Request</h2>
@@ -155,6 +111,14 @@
 
     <h2>Events List</h2>
     <ul>
+        <form action="/students/dashboard" method="GET">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate">
+        
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate">
+        
+            <button type="submit">Apply</button><br>
         <% event_list.forEach(function(event) { %>
             <li>
                 <strong>Event Name:</strong> <%= event.event_name %><br>
@@ -168,15 +132,19 @@
 
                 <strong>Registered Students:</strong>
                 <ul>
-                    <% event_list.forEach(function(event) { %>
-                        <li>
-                            <%= event.name %> - <%= event.rollnumber %>
-                        </li>
-                    <% }); %>
+                    <% if (event.students && event.students.length > 0) { %>
+                        <% event.students.forEach(student => { %>
+                            <li>
+                                <%= student %>
+                            </li>
+                        <% }); %>
+                    <% } else { %>
+                        <li>No registered students for this event.</li>
+                    <% } %>
                 </ul>
-
             </li>
-        <% }); %>
+            <% }); %>
+        </form>
     </ul>
 
     <a href="/students/create-clubs">Create Club</a>
