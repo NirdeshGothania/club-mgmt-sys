@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
     <title>Coordinator Dashboard</title>
 </head>
+
 <body>
-    <h1>Hello <%= user %></h1>
+    <h1>Hello <%= user %>
+    </h1>
     <h1>Welcome to the Coordinator Dashboard</h1>
 
     <p>You have access to coordinator features.</p>
-    
+
     <!-- <h2>Events List</h2>
     <ul>
         <% events.forEach(function(event) { %>
@@ -68,21 +71,37 @@
         <tbody>
             <% events.forEach(function(event) { %>
                 <tr>
-                    <td><%= event.event_name %></td>
-                    <td><%= event.event_desc %></td>
-                    <td><%= event.start_date %></td>
-                    <td><%= event.end_date %></td>
-                    <td><%= event.room %></td>
-                    <td><%= event.budget %></td>
-                    <td><%= (event.status == null) ? "Pending" : (event.status ? "Accepted" : "Rejected") %></td>
+                    <td>
+                        <%= event.event_name %>
+                    </td>
+                    <td>
+                        <%= event.event_desc %>
+                    </td>
+                    <td>
+                        <%= event.start_date %>
+                    </td>
+                    <td>
+                        <%= event.end_date %>
+                    </td>
+                    <td>
+                        <%= event.room %>
+                    </td>
+                    <td>
+                        <%= event.budget %>
+                    </td>
+                    <td>
+                        <%= (event.status==null) ? "Pending" : (event.status ? "Accepted" : "Rejected" ) %>
+                    </td>
                 </tr>
-            <% }); %>
+                <% }); %>
         </tbody>
     </table>
 
     <h2>Registered Students List:</h2>
     <% events.forEach(function(event) { %>
-        <h3><%= event.event_name %></h3>
+        <h3>
+            <%= event.event_name %>
+        </h3>
         <table>
             <thead>
                 <tr>
@@ -93,17 +112,22 @@
             <tbody>
                 <% event.students.forEach(function(student) { %>
                     <tr>
-                        <td><%= student.student_name %></td>
-                        <td><%= student.rollnumber %></td>
+                        <td>
+                            <%= student.student_name %>
+                        </td>
+                        <td>
+                            <%= student.rollnumber %>
+                        </td>
                     </tr>
-                <% }); %>
+                    <% }); %>
             </tbody>
         </table>
-    <% }); %>
+        <% }); %>
 
-    <ul>
-        <li><a href="/students/create-event">Create Event</a></li>
-    </ul>
-    <a href="/students/logout">Logout</a>
+            <ul>
+                <li><a href="/students/create-event">Create Event</a></li>
+            </ul>
+            <a href="/students/logout">Logout</a>
 </body>
+
 </html>
