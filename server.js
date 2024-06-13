@@ -46,49 +46,6 @@ app.get("/students/login", checkAuthenticated, (req, res) => {
     res.render("login");
 });
 
-// app.get("/students/dashboard", (req, res) => {
-
-//     const userRole = req.user.role;
-//     const userId = req.user.user_id;
-
-
-//     pool.query(
-//         `SELECT * FROM users WHERE role = 2`,
-//         (err, stud) => {
-//             if (err) {
-//                 console.log(err);
-//                 req.flash("error_msg", "Failed to fetch students");
-//                 res.redirect("/students/dashboard");
-//             } 
-//             else {
-//                 if (userRole === 0) {
-//                     pool.query(
-//                         `SELECT ClubTable.club_id, ClubTable.name
-//                          FROM ClubTable
-//                          INNER JOIN Club_coordinator ON ClubTable.club_id = Club_coordinator.club_id
-//                          WHERE Club_coordinator.user_id = $1`,
-//                         [userId],
-//                         (err, clubResults) => {
-//                             if (err) {
-//                                 console.log(err);
-//                                 req.flash("error_msg", "Failed to fetch club data");
-//                             }
-//                             res.render("admin-dashboard", { user: req.user.name, students: stud.rows});
-//                         }
-//                     );
-//                 }  
-//                 else if (userRole === 1) {
-//                     res.render("coordinator-dashboard", { user: req.user.name });
-//                 } 
-//                 else {
-//                     res.render("student-dashboard", { user: req.user.name });
-//                 }
-//                 console.log(stud.rows);
-//             }
-//         }
-//     );
-
-// });
 
 function groupClubsAndCoordinators(data) {
     const clubData = {};
@@ -106,7 +63,7 @@ function groupClubsAndCoordinators(data) {
         }
     });
 
-    return Object.values(clubData);  
+    return Object.values(clubData);
 }
 
 app.get("/students/dashboard", (req, res) => {
@@ -126,159 +83,8 @@ app.get("/students/dashboard", (req, res) => {
                 return res.redirect("/students/dashboard");
             } else {
                 if (userRole === 0) {
-                    // pool.query(
-                    //     `SELECT clubTable.club_id, clubTable.name
-                    //      FROM clubTable
-                    //      INNER JOIN club_coordinator ON clubTable.club_id = club_coordinator.club_id
-                    //      WHERE club_coordinator.user_id = $1`,
-                    //     [userId],
-                    //     (err, clubResults) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch club data");
-                    //             return res.redirect("/students/dashboard");
-                    //         }
-                    //         res.render("admin-dashboard", {
-                    //             user: req.user.name,
-                    //             students: stud.rows,
-                    //             clubs: clubResults.rows,
-                    //         });
-                    //     }
-                    // );
 
-                    //     pool.query(
-                    //     `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                    //     FROM club_table
-                    //     LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                    //     LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
-                    //     (err, results) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch club data");
-                    //         }
-                    //         res.render("admin-dashboard", {
-                    //             user: req.user.name,
-                    //             students: stud.rows,
-                    //             clubs: results.rows
-                    //         });
-                    //     }
-                    // );
-
-                    // pool.query(
-                    //     `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                    //     FROM club_table
-                    //     LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                    //     LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
-                    //     (err, results) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch club data");
-                    //         }
-
-                    //         // Group the clubs and their coordinators
-                    //         // const clubsData = groupClubsAndCoordinators(results.rows);
-
-                    //         res.render("admin-dashboard", {
-                    //             user: req.user.name,
-                    //             students: stud.rows,
-                    //             clubs: results.rows,
-                    //         });
-                    //     }
-                    // );
-
-                    // pool.query(
-                    //     `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                    //     FROM club_table
-                    //     LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                    //     LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
-                    //     (err, results) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch club data");
-                    //         }
-
-                    //         // Group the clubs and their coordinators
-                    //         const clubsData = groupClubsAndCoordinators(results.rows);
-
-                    //         // Fetch clubs without coordinators
-                    //         pool.query(
-                    //             `SELECT club_table.club_id, club_table.name AS club_name
-                    //             FROM club_table
-                    //             WHERE club_table.club_id NOT IN (
-                    //                 SELECT club_id FROM club_coordinator
-                    //             )`,
-                    //             (err, clubsWithoutCoordinators) => {
-                    //                 if (err) {
-                    //                     console.log(err);
-                    //                     req.flash("error_msg", "Failed to fetch clubs without coordinators");
-                    //                 }
-
-                    //                 res.render("admin-dashboard", {
-                    //                     user: req.user.name,
-                    //                     students: stud.rows,
-                    //                     clubs: clubsData,
-                    //                     clubsWithoutCoordinators: clubsWithoutCoordinators.rows,
-                    //                 });
-                    //             }
-                    //         );
-                    //     }
-                    // );
-
-                    // pool.query(
-                    //     `SELECT *
-                    //      FROM create_events
-                    //      WHERE status IS NULL`,
-                    //     [userId],
-                    //     (err, events) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch events");
-                    //             res.redirect("/students/dashboard");
-                    //         } else {
-                    //             // res.render("admin-dashboard", {});
-                    //             pool.query(
-                    //                 `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                    //                 FROM club_table
-                    //                 LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                    //                 LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
-                    //                 (err, results) => {
-                    //                     if (err) {
-                    //                         console.log(err);
-                    //                         req.flash("error_msg", "Failed to fetch club data");
-                    //                     }
-
-                    //                     // Group the clubs and their coordinators
-                    //                     const clubsData = groupClubsAndCoordinators(results.rows);
-
-                    //                     // Fetch clubs without coordinators
-                    //                     pool.query(
-                    //                         `SELECT club_table.club_id, club_table.name AS club_name
-                    //                         FROM club_table
-                    //                         WHERE club_table.club_id NOT IN (
-                    //                             SELECT club_id FROM club_coordinator
-                    //                         )`,
-                    //                         (err, clubsWithoutCoordinators) => {
-                    //                             if (err) {
-                    //                                 console.log(err);
-                    //                                 req.flash("error_msg", "Failed to fetch clubs without coordinators");
-                    //                             }
-
-                    //                             res.render("admin-dashboard", {
-                    //                                 user: req.user.name,
-                    //                                 students: stud.rows,
-                    //                                 clubs: clubsData,
-                    //                                 clubsWithoutCoordinators: clubsWithoutCoordinators.rows,
-                    //                                 events: events.rows, 
-                    //                             });
-                    //                         }
-                    //                     );
-                    //                 }
-                    //             );
-                    //         }
-                    //     }
-                    // );
-
-                        let query = `SELECT club_table.name AS club_name,
+                    let query = `SELECT club_table.name AS club_name,
                             create_events.*,
                             registered_students.*,
                             users.* 
@@ -287,19 +93,16 @@ app.get("/students/dashboard", (req, res) => {
                             LEFT JOIN registered_students ON create_events.event_id = registered_students.event_id 
                             LEFT JOIN users ON registered_students.user_id = users.user_id 
                             WHERE status = true`;
-                        if (startDate && endDate) {
-                            query += ` AND create_events.start_date >= '${startDate}' AND create_events.start_date <= '${endDate}'`;
-                        }
+                    if (startDate && endDate) {
+                        query += ` AND create_events.start_date >= '${startDate}' AND create_events.start_date <= '${endDate}'`;
+                    }
 
                     pool.query(query, (err, event_list) => {
                         if (err) {
                             console.log(err);
                         }
                         else {
-                            
-                            // event_list.rows.forEach(event => {
-                            //     event.students = event.students.append(event.name && event.rollnumber) || []; 
-                            // });
+
 
                             event_list.rows.forEach(event => {
                                 event.students = (event.students || []).concat(event.name && event.rollnumber || []);
@@ -308,8 +111,8 @@ app.get("/students/dashboard", (req, res) => {
                             pool.query(
                                 `SELECT club_table.name AS club_name,
                                 create_events.*
-                             FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id
-                             WHERE status IS NULL`,
+                                FROM club_table JOIN create_events ON club_table.club_id = create_events.club_id
+                                WHERE status IS NULL`,
                                 (err, events) => {
                                     if (err) {
                                         console.log(err);
@@ -318,24 +121,24 @@ app.get("/students/dashboard", (req, res) => {
                                     } else {
                                         pool.query(
                                             `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                                        FROM club_table
-                                        LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                                        LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
+                                            FROM club_table
+                                            LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
+                                            LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
                                             (err, results) => {
                                                 if (err) {
                                                     console.log(err);
                                                     req.flash("error_msg", "Failed to fetch club data");
                                                 }
 
-                                                // Group the clubs and their coordinators
+
 
                                                 const clubsData = groupClubsAndCoordinators(results.rows);
 
-                                                // Fetch clubs without coordinators
+
                                                 pool.query(
                                                     `SELECT club_table.club_id, club_table.name AS club_name
-                                                FROM club_table
-                                                WHERE club_table.club_id NOT IN (
+                                                    FROM club_table
+                                                    WHERE club_table.club_id NOT IN (
                                                     SELECT club_id FROM club_coordinator
                                                 )`,
                                                     (err, clubsWithoutCoordinators) => {
@@ -372,57 +175,6 @@ app.get("/students/dashboard", (req, res) => {
                             );
                         }
                     });
-                    // pool.query(
-                    //     `SELECT *
-                    //  FROM create_events
-                    //  WHERE status IS NULL`,
-                    //     (err, events) => {
-                    //         if (err) {
-                    //             console.log(err);
-                    //             req.flash("error_msg", "Failed to fetch events");
-                    //             res.redirect("/students/dashboard");
-                    //         } else {
-                    //             pool.query(
-                    //                 `SELECT club_table.club_id, club_table.name AS club_name, users.name AS coordinator_name
-                    //             FROM club_table
-                    //             LEFT JOIN club_coordinator ON club_table.club_id = club_coordinator.club_id
-                    //             LEFT JOIN users ON club_coordinator.user_id = users.user_id`,
-                    //                 (err, results) => {
-                    //                     if (err) {
-                    //                         console.log(err);
-                    //                         req.flash("error_msg", "Failed to fetch club data");
-                    //                     }
-
-                    //                     // Group the clubs and their coordinators
-                    //                     const clubsData = groupClubsAndCoordinators(results.rows);
-
-                    //                     // Fetch clubs without coordinators
-                    //                     pool.query(
-                    //                         `SELECT club_table.club_id, club_table.name AS club_name
-                    //                     FROM club_table
-                    //                     WHERE club_table.club_id NOT IN (
-                    //                         SELECT club_id FROM club_coordinator
-                    //                     )`,
-                    //                         (err, clubsWithoutCoordinators) => {
-                    //                             if (err) {
-                    //                                 console.log(err);
-                    //                                 req.flash("error_msg", "Failed to fetch clubs without coordinators");
-                    //                             }
-
-                    //                             res.render("admin-dashboard", {
-                    //                                 user: req.user.name,
-                    //                                 students: stud.rows,
-                    //                                 clubs: clubsData,
-                    //                                 clubsWithoutCoordinators: clubsWithoutCoordinators.rows,
-                    //                                 events: events.rows,
-                    //                             });
-                    //                         }
-                    //                     );
-                    //                 }
-                    //             );
-                    //         }
-                    //     }
-                    // );
 
                 } else if (userRole === 1) {
 
@@ -469,7 +221,6 @@ app.get("/students/dashboard", (req, res) => {
                                         );
                                     });
                                 });
-                                // res.render("coordinator-dashboard", { user: req.user.name, events: events.rows });
                                 Promise.all(promises)
                                     .then(() => {
 
@@ -486,7 +237,7 @@ app.get("/students/dashboard", (req, res) => {
                         }
                     );
 
-                    // res.render("coordinator-dashboard", { user: req.user.name });
+
 
                 } else {
 
@@ -501,7 +252,7 @@ app.get("/students/dashboard", (req, res) => {
                                 // Assuming events.rows is an array of events
                                 const eventIds = events.rows.map(event => event.event_id);
                                 console.log(eventIds);
-                                
+
                                 const currentDateTime = moment().tz('UTC').format();
 
                                 pool.query(
@@ -532,7 +283,7 @@ app.get("/students/dashboard", (req, res) => {
                     );
 
 
-                    // res.render("student-dashboard", { user: req.user.name });
+
                 }
                 console.log(stud.rows);
             }
@@ -566,7 +317,6 @@ app.post("/students/create-clubs", (req, res) => {
     console.log("Club Name:", clubname);
 
     if (!clubname) {
-        // Handle the case where clubname is missing or empty.
         console.error("error_msg", "Club name is required");
         return res.redirect("/students/create-clubs");
     }
@@ -614,33 +364,7 @@ app.post("/students/create-clubs", (req, res) => {
 
         }
     });
-    // pool.query(
-    //     `INSERT INTO club_table (name) VALUES ($1) RETURNING club_id`,
-    //     [clubname],
-    //     (err, clubResult) => {
-    //         if (err) {
-    //             console.log(err);
-    //             req.flash("error_msg", "Failed to create the club");
-    //             res.redirect("/students/dashboard");
-    //         } else {
-    //             const clubId = clubResult.rows[0].club_id;
 
-    //             pool.query(
-    //                 `INSERT INTO club_coordinator (club_id, user_id) VALUES ($1, $2)`,
-    //                 [clubId, userId],
-    //                 (err) => {
-    //                     if (err) {
-    //                         console.log(err);
-    //                         req.flash("error_msg", "Failed to assign the coordinator");
-    //                     } else {
-    //                         req.flash("success_msg", "Club created.");
-    //                     }
-    //                     res.redirect("/students/dashboard");
-    //                 }
-    //             );
-    //         }
-    //     }
-    // );
 });
 
 app.post('/students/register', async (req, res) => {
@@ -875,27 +599,6 @@ app.post("/students/reset-password/:token", (req, res) => {
     );
 });
 
-
-// app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
-//     const { userId } = req.params;
-
-//     pool.query(
-//         `UPDATE users SET role = 1 WHERE user_id = $1`,
-//         [userId],
-//         (err) => {
-//             if (err) {
-//                 console.log(err);
-//                 req.flash("error_msg", "Failed to promote user to coordinator");
-//             } else {
-//                 req.flash("success_msg", "User promoted to coordinator successfully");
-//             }
-//             res.redirect("/students/dashboard");
-//         }
-//     );
-// });
-
-
-
 app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
     // console.log(req.body.clubId);
     const userId = req.params.userId;
@@ -943,28 +646,6 @@ app.post("/students/dashboard/promote-coordinator/:userId", (req, res) => {
     );
 });
 
-// app.get("/students/create-event", (req, res) => {
-//     res.render("create-event");
-// });
-
-// app.post("/students/create-event", (req, res) => {
-//     const { clubId, eventName, startDate, endDate } = req.body;
-
-//     pool.query(
-//         `INSERT INTO create_events (club_id, event_name, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING event_id`,
-//         [clubId, eventName, startDate, endDate],
-//         (err, eventResult) => {
-//             if (err) {
-//                 console.log(err);
-//                 req.flash("error_msg", "Failed to create the event");
-//                 res.redirect("/students/create-event");
-//             } else {
-//                 req.flash("success_msg", "Event created.");
-//                 res.redirect("/students/dashboard");
-//             }
-//         }
-//     );
-// });
 
 app.get("/students/create-event", (req, res) => {
     res.render("create-event");
@@ -1003,178 +684,76 @@ app.post("/students/create-event", (req, res) => {
     }
 });
 
-// function checkCoordinator(req, res, next) {
-//     if (req.user.role === 1) {
-//         return next();
-//     } else {
-//         req.flash("error_msg", "Access denied. Coordinator privileges required.");
-//         return res.redirect("/students/dashboard");
-//     }
-// }
-
-// app.post("/students/dashboard/event-register/:eventId/:userId", (req, res) => {
-
-//     const eventId = req.params.eventId;
-//     const userId = req.params.userId;
-//     console.log(userId);
-//     pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
-//         if (err) {
-
-//             console.log(err);
-//         }
-//         console.log("event registered");
-//         res.redirect("/students/dashboard");
-//     });
-// });
-
-
-
-// app.post("/students/dashboard/event-register/:userId", (req, res) => {
-//     const userId = req.params.userId;
-//     const selectedEventIds = req.body.eventIds;
-
-//     if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
-//         req.flash("error_msg", "No events selected for registration");
-//         return res.redirect("/students/dashboard");
-//     }
-
-//     const promises = selectedEventIds.map((eventId) => {
-//         return new Promise((resolve, reject) => {
-//             pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
-//                 if (err) {
-//                     console.log(err);
-//                     reject(err);
-//                 } else {
-//                     console.log(`Event with ID ${eventId} registered for user ${userId}`);
-//                     resolve();
-//                 }
-//             });
-//         });
-//     });
-
-//     Promise.all(promises)
-//         .then(() => {
-//             req.flash("success_msg", "Events registered successfully");
-//             res.redirect("/students/dashboard");
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//             req.flash("error_msg", "Failed to register events");
-//             res.redirect("/students/dashboard");
-//         });
-// });
-
-
-
-// app.post("/students/dashboard/event-register/:userId", (req, res) => {
-//     const userId = req.params.userId;
-//     const selectedEventIds = req.body.eventIds;
-//     console.log(selectedEventIds);
-
-//     if (!selectedEventIds) {
-//         req.flash("error_msg", "No events selected for registration");
-//         console.log("Error empty checkbox")
-//         return res.redirect("/students/dashboard");
-//     }
-
-//     const promises = selectedEventIds.map((eventId) => {
-//         return new Promise((resolve, reject) => {
-//             pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
-//                 if (err) {
-//                     console.log(err);
-//                     console.log("Error in inserting")
-//                     reject(err);
-//                 } else {
-//                     console.log(`Event with ID ${eventId} registered for user ${userId}`);
-//                     resolve();
-//                 }
-//             });
-//         });
-//     });
-
-//     Promise.all(promises)
-//         .then(() => {
-//             req.flash("success_msg", "Events registered successfully");
-//             res.redirect("/students/dashboard");
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//             req.flash("error_msg", "Failed to register events");
-//             res.redirect("/students/dashboard");
-//         });
-// });
-
-
 app.post("/students/dashboard/event-register/:userId", (req, res) => {
     const userId = req.params.userId;
-    const selectedEventIds = req.body.eventIds; // Assuming eventIds is an array
- 
+    const selectedEventIds = req.body.eventIds;
+
     if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
-       console.error('Invalid or missing eventIds:', selectedEventIds);
-       return res.redirect("/students/dashboard");
+        console.error('Invalid or missing eventIds:', selectedEventIds);
+        return res.redirect("/students/dashboard");
     }
- 
-    // Insert into the registered_students table for each selected event
+
+
     const promises = selectedEventIds.map((eventId) => {
-       return new Promise((resolve, reject) => {
-          pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
-             if (err) {
-                console.log(err);
-                reject(err);
-             } else {
-                console.log("Event registered:", eventId);
-                resolve();
-             }
-          });
-       });
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO registered_students (event_id, user_id) VALUES ($1, $2)`, [eventId, userId], (err) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    console.log("Event registered:", eventId);
+                    resolve();
+                }
+            });
+        });
     });
- 
-    // Wait for all promises to resolve before redirecting
+
+
     Promise.all(promises)
-       .then(() => {
-          res.redirect("/students/dashboard");
-       })
-       .catch((error) => {
-          console.error('Error registering events:', error);
-          res.redirect("/students/dashboard");
-       });
- });
+        .then(() => {
+            res.redirect("/students/dashboard");
+        })
+        .catch((error) => {
+            console.error('Error registering events:', error);
+            res.redirect("/students/dashboard");
+        });
+});
 
 
- app.post("/students/dashboard/event-unregister/:userId", (req, res) => {
+app.post("/students/dashboard/event-unregister/:userId", (req, res) => {
     const userId = req.params.userId;
-    const selectedEventIds = req.body.eventIds; 
- 
+    const selectedEventIds = req.body.eventIds;
+
     if (!selectedEventIds || !Array.isArray(selectedEventIds)) {
-       console.error('Invalid or missing eventIds:', selectedEventIds);
-       return res.redirect("/students/dashboard");
+        console.error('Invalid or missing eventIds:', selectedEventIds);
+        return res.redirect("/students/dashboard");
     }
- 
-    
+
+
     const promises = selectedEventIds.map((eventId) => {
-       return new Promise((resolve, reject) => {
-          pool.query(`DELETE FROM registered_students WHERE event_id = $1 AND user_id = $2`, [eventId, userId], (err) => {
-             if (err) {
-                console.log(err);
-                reject(err);
-             } else {
-                console.log("Event unregistered:", eventId);
-                resolve();
-             }
-          });
-       });
+        return new Promise((resolve, reject) => {
+            pool.query(`DELETE FROM registered_students WHERE event_id = $1 AND user_id = $2`, [eventId, userId], (err) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    console.log("Event unregistered:", eventId);
+                    resolve();
+                }
+            });
+        });
     });
- 
-    
+
+
     Promise.all(promises)
-       .then(() => {
-          res.redirect("/students/dashboard");
-       })
-       .catch((error) => {
-          console.error('Error unregistering events:', error);
-          res.redirect("/students/dashboard");
-       });
- });
+        .then(() => {
+            res.redirect("/students/dashboard");
+        })
+        .catch((error) => {
+            console.error('Error unregistering events:', error);
+            res.redirect("/students/dashboard");
+        });
+});
 
 
 app.post("/students/dashboard/request-response/:eventID", (req, res) => {
